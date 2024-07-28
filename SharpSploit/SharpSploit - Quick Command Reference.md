@@ -70,11 +70,19 @@
 
 * `StartKeylogger()` - Starts a keylogger that gets keystrokes for a specified amount of time.
 
+### SharpSploit.Enumeration.Clipboard
+
+* `StartClipboardMonitor()` - Starts a clipboard monitor that records clipboard changes for a specified amount of time.
+
 ## SharpSploit.Evastion
 
 ### SharpSploit.Evasion.Amsi
 
 * `PatchAmsiScanBuffer()` - Patch the AmsiScanBuffer function in amsi.dll to disable the AMSI for the current process.
+
+### SharpSploit.Evasion.ETW
+
+* `PatchETWEventWrite()` - Patch the ETWEventWrite function in ntdll.dll to disable ETW for the current process.
 
 ## SharpSploit.Execution
 
@@ -160,7 +168,7 @@ The `SharpSploit.Execution.DynamicInvoke.Generic` class contains helper function
 * `CallMappedDLLModuleExport()` - Call a manually mapped DLL by Export.
 * `GetSyscallStub()` - Read ntdll from disk, find/copy the appropriate syscall stub and free ntdll.
 
-## SharpSploit.Execution.ManaulMap
+## SharpSploit.Execution.ManualMap
 
 The `SharpSploit.Execution.ManualMap.Map` class contains helper functions for manually mapping PE modules.
 
@@ -170,6 +178,7 @@ The `SharpSploit.Execution.ManualMap.Map` class contains helper functions for ma
 * `MapModuleToMemory()` - Manually map module into current process.
 * `SetModuleSectionPermissions()` - Set correct module section permissions.
 * `RewriteModuleIAT()` - Rewrite IAT for manually mapped module.
+* `FreeModule()` - Free a manually mapped module
 
 The `SharpSploit.Execution.ManualMap.Overload` class contains helper functions for Module Overloading.
 
@@ -184,9 +193,13 @@ The `SharpSploit.Execution.Injection` namespace contains classes for modular pro
 
 The `SharpSploit.Execution.Injection.AllocationTechnique` class is an abstract parent class providing the requirements for all allocation components.
 
-### SharpSploit.Execution.Injection.SectionMapAlloc
+### SharpSploit.Execution.Injection.SectionMapAllocationTechnique
 
-The `SharpSploit.Execution.Injection.SectionMapAlloc` class inherits from `AllocationTechnique` and is an Allocation component that allocates a payload to a target process using a locally-written, remotely-mapped shared memory section.
+The `SharpSploit.Execution.Injection.SectionMapAllocationTechnique` class inherits from `AllocationTechnique` and is an Allocation component that allocates a payload to a target process using a locally-written, remotely-mapped shared memory section.
+
+### SharpSploit.Execution.Injection.VirtualAllocAllocationTechnique
+
+The `SharpSploit.Execution.Injection.VirtualAllocAllocationTechnique` class inherits from `AllocationTechnique` and is an Allocation component that allocates a payload to a target process using the VirtualAlloc and WriteProcessMemory APIs.
 
 ### SharpSploit.Execution.Injection.ExecutionTechnique
 

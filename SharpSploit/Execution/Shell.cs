@@ -296,5 +296,108 @@ namespace SharpSploit.Execution
                 }
             }
         }
+
+        /// <summary>
+        /// Kills a specified process.
+        /// </summary>
+        /// <param name="Pid">The PID of the process to kill.</param>
+        /// <returns>bool</returns>
+        public static bool KillProcess(int Pid)
+        {
+            Process process = Process.GetProcessById(Pid);
+            process.Kill();
+            return process.HasExited;
+        }
+
+        /// <summary>
+        /// Kills all processes with a given name.
+        /// </summary>
+        /// <param name="Name">The name of the process(es) to kill.</param>
+        /// <returns>bool</returns>
+        public static bool KillProcess(string Name)
+        {
+            foreach (Process process in Process.GetProcessesByName(Name))
+            {
+                if (!KillProcess(process.Id))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Suspends a process specificed by Id.
+        /// </summary>
+        /// <param name="Pid">The ID of the process to suspend.</param>
+        /// <returns>bool</returns>
+        public static bool SuspendProcess(int Pid)
+        {
+            Process process = Process.GetProcessById(Pid);
+            bool success = true;
+            foreach (ProcessThread thread in process.Threads)
+            {
+                IntPtr pOpenThread = PInvoke.Win32.Kernel32.OpenThread((uint)Win32.Kernel32.ThreadAccess.SuspendResume, false, (uint)thread.Id);
+                if (pOpenThread != IntPtr.Zero && PInvoke.Win32.Kernel32.SuspendThread(pOpenThread) == -1)
+                {
+                     success = false;
+                }
+            }
+            return success;
+        }
+
+        /// <summary>
+        /// Suspends all processes with a given Name.
+        /// </summary>
+        /// <param name="Name">The name of the process(es) to suspend.</param>
+        /// <returns>bool</returns>
+        public static bool SuspendProcess(string Name)
+        {
+            foreach (Process process in Process.GetProcessesByName(Name))
+            {
+                if (!SuspendProcess(process.Id))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Resumes a process specified by Id.
+        /// </summary>
+        /// <param name="Pid">The Id of the process to resume.</param>
+        /// <returns>bool</returns>
+        public static bool ResumeProcess(int Pid)
+        {
+            Process process = Process.GetProcessById(Pid);
+            bool success = true;
+            foreach (ProcessThread thread in process.Threads)
+            {
+                IntPtr pOpenThread = PInvoke.Win32.Kernel32.OpenThread((uint)Win32.Kernel32.ThreadAccess.SuspendResume, false, (uint)thread.Id);
+                if (pOpenThread != IntPtr.Zero && PInvoke.Win32.Kernel32.ResumeThread(pOpenThread) == -1)
+                {
+                     success = false;
+                }
+            }
+            return success;
+        }
+
+        /// <summary>
+        /// Resumes all processes with a given Name.
+        /// </summary>
+        /// <param name="Name">The name of the process(es) to resume.</param>
+        /// <returns>bool</returns>
+        public static bool ResumeProcess(string Name)
+        {
+            foreach (Process process in Process.GetProcessesByName(Name))
+            {
+                if (!ResumeProcess(process.Id))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

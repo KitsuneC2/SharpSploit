@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Runtime.InteropServices;
-using SharpSploit.Execution.ManualMap;
 
 using Execute = SharpSploit.Execution;
 
@@ -211,7 +210,7 @@ namespace SharpSploit.Execution.DynamicInvoke
             // Loop entries
             IntPtr flink = le.Flink;
             IntPtr hModule = IntPtr.Zero;
-            PE.LDR_DATA_TABLE_ENTRY dte = (PE.LDR_DATA_TABLE_ENTRY)Marshal.PtrToStructure(flink, typeof(PE.LDR_DATA_TABLE_ENTRY));
+            Execute.PE.LDR_DATA_TABLE_ENTRY dte = (Execute.PE.LDR_DATA_TABLE_ENTRY)Marshal.PtrToStructure(flink, typeof(Execute.PE.LDR_DATA_TABLE_ENTRY));
             while (dte.InLoadOrderLinks.Flink != le.Blink)
             {
                 // Match module name
@@ -222,7 +221,7 @@ namespace SharpSploit.Execution.DynamicInvoke
             
                 // Move Ptr
                 flink = dte.InLoadOrderLinks.Flink;
-                dte = (PE.LDR_DATA_TABLE_ENTRY)Marshal.PtrToStructure(flink, typeof(PE.LDR_DATA_TABLE_ENTRY));
+                dte = (Execute.PE.LDR_DATA_TABLE_ENTRY)Marshal.PtrToStructure(flink, typeof(Execute.PE.LDR_DATA_TABLE_ENTRY));
             }
 
             return hModule;
@@ -620,15 +619,10 @@ namespace SharpSploit.Execution.DynamicInvoke
         /// <param name="ExportName">The name of the export to search for (e.g. "NtAlertResumeThread").</param>
         /// <param name="FunctionDelegateType">Prototype for the function, represented as a Delegate object.</param>
         /// <param name="Parameters">Arbitrary set of parameters to pass to the function. Can be modified if function uses call by reference.</param>
-        /// <param name="CallEntry">Specify whether to invoke the module's entry point.</param>
         /// <returns>void</returns>
-        public static object CallMappedDLLModuleExport(PE.PE_META_DATA PEINFO, IntPtr ModuleMemoryBase, string ExportName, Type FunctionDelegateType, object[] Parameters, bool CallEntry = true)
+        public static object CallMappedDLLModuleExport(PE.PE_META_DATA PEINFO, IntPtr ModuleMemoryBase, string ExportName, Type FunctionDelegateType, object[] Parameters)
         {
-            // Call entry point if user has specified
-            if (CallEntry)
-            {
-                CallMappedDLLModule(PEINFO, ModuleMemoryBase);
-            }
+            CallMappedDLLModule(PEINFO, ModuleMemoryBase);
 
             // Get export pointer
             IntPtr pFunc = GetExportAddress(ModuleMemoryBase, ExportName);
@@ -676,7 +670,7 @@ namespace SharpSploit.Execution.DynamicInvoke
 
             IntPtr pImage = Native.NtAllocateVirtualMemory(
                 (IntPtr)(-1), ref BaseAddress, IntPtr.Zero, ref RegionSize,
-                Execute.Win32.Kernel32.AllocationType.Commit | Execute.Win32.Kernel32.AllocationType.Reserve,
+                Execute.Win32.Kernel32.MEM_COMMIT | Execute.Win32.Kernel32.MEM_RESERVE,
                 Execute.Win32.WinNT.PAGE_READWRITE
             );
 
@@ -710,7 +704,7 @@ namespace SharpSploit.Execution.DynamicInvoke
             RegionSize = (IntPtr)0x50;
             IntPtr pCallStub = Native.NtAllocateVirtualMemory(
                 (IntPtr)(-1), ref BaseAddress, IntPtr.Zero, ref RegionSize,
-                Execute.Win32.Kernel32.AllocationType.Commit | Execute.Win32.Kernel32.AllocationType.Reserve,
+                Execute.Win32.Kernel32.MEM_COMMIT | Execute.Win32.Kernel32.MEM_RESERVE,
                 Execute.Win32.WinNT.PAGE_READWRITE
             );
 
@@ -728,7 +722,7 @@ namespace SharpSploit.Execution.DynamicInvoke
             Marshal.FreeHGlobal(pModule);
             RegionSize = PEINFO.Is32Bit ? (IntPtr)PEINFO.OptHeader32.SizeOfImage : (IntPtr)PEINFO.OptHeader64.SizeOfImage;
 
-            Native.NtFreeVirtualMemory((IntPtr)(-1), ref pImage, ref RegionSize, Execute.Win32.Kernel32.AllocationType.Reserve);
+            Native.NtFreeVirtualMemory((IntPtr)(-1), ref pImage, ref RegionSize, Execute.Win32.Kernel32.MEM_RELEASE);
 
             return pCallStub;
         }

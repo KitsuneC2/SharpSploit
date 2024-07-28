@@ -13,47 +13,42 @@
             <remarks>
             Mimikatz is a tool for playing with credentials in Windows, written by Benjamin Delpy (@gentilkiwi). (Found
             at https://github.com/gentilkiwi/mimikatz).
-            This wrapper class is adapted from Chris Ross (@xorrior)'s implementation, converted by (@TheRealWover) to use the Manual Mapping API.
+            SharpSploit's PE Loader is adapted from work by Casey Smith (@subtee). (No longer available at original location.)
+            This wrapper class is adapted from Chris Ross (@xorrior)'s implementation. (Found
+            at https://github.com/xorrior/Random-CSharpTools/tree/master/DllLoader/DllLoader)
             </remarks>
         </member>
         <member name="M:SharpSploit.Credentials.Mimikatz.Command(System.String)">
             <summary>
-            Loads the Mimikatz PE and executes a chosen Mimikatz command.
+            Loads the Mimikatz PE with `PE.Load()` and executes a chosen Mimikatz command.
             </summary>
             <param name="Command">Mimikatz command to be executed.</param>
             <returns>Mimikatz output.</returns>
         </member>
-        <member name="M:SharpSploit.Credentials.Mimikatz.Coffee">
-            <summary>
-            Loads the Mimikatz PE and executes the Mimikatz command to get some coffee.
-            Equates to `Command("coffee")`.
-            </summary>
-            <returns>Mimikatz output.</returns>
-        </member>
         <member name="M:SharpSploit.Credentials.Mimikatz.LogonPasswords">
             <summary>
-            Loads the Mimikatz PE and executes the Mimikatz command to retrieve plaintext
+            Loads the Mimikatz PE with `PE.Load()` and executes the Mimikatzcommand to retrieve plaintext
             passwords from LSASS. Equates to `Command("privilege::debug sekurlsa::logonPasswords")`. (Requires Admin)
             </summary>
             <returns>Mimikatz output.</returns>
         </member>
         <member name="M:SharpSploit.Credentials.Mimikatz.SamDump">
             <summary>
-            Loads the Mimikatz PE and executes the Mimikatz command to retrieve password hashes
+            Loads the Mimikatz PE with `PE.Load()` and executes the Mimikatz command to retrieve password hashes
             from the SAM database. Equates to `Command("privilege::debug lsadump::sam")`. (Requires Admin)
             </summary>
             <returns>Mimikatz output.</returns>
         </member>
         <member name="M:SharpSploit.Credentials.Mimikatz.LsaSecrets">
             <summary>
-            Loads the Mimikatz PE and executes the Mimikatz command to retrieve LSA secrets
+            Loads the Mimikatz PE with `PE.Load()` and executes the Mimikatz command to retrieve LSA secrets
             stored in registry. Equates to `Command("privilege::debug lsadump::secrets")`. (Requires Admin)
             </summary>
             <returns>Mimikatz output.</returns>
         </member>
         <member name="M:SharpSploit.Credentials.Mimikatz.LsaCache">
             <summary>
-            Loads the Mimikatz PE and executes the Mimikatz command to retrieve Domain
+            Loads the Mimikatz PE with `PE.Load()` and executes the Mimikatz command to retrieve Domain
             Cached Credentials hashes from registry. Equates to `Command("privilege::debug lsadump::cache")`.
             (Requires Admin)
             </summary>
@@ -61,20 +56,20 @@
         </member>
         <member name="M:SharpSploit.Credentials.Mimikatz.Wdigest">
             <summary>
-            Loads the Mimikatz PE and executes the Mimikatz command to retrieve Wdigest
+            Loads the Mimikatz PE with `PE.Load()` and executes the Mimikatz command to retrieve Wdigest
             credentials from registry. Equates to `Command("sekurlsa::wdigest")`.
             </summary>
             <returns>Mimikatz output.</returns>
         </member>
         <member name="M:SharpSploit.Credentials.Mimikatz.All">
             <summary>
-            Loads the Mimikatz PE and executes each of the builtin local commands (not DCSync). (Requires Admin)
+            Loads the Mimikatz PE with `PE.Load()` and executes each of the builtin local commands (not DCSync). (Requires Admin)
             </summary>
             <returns>Mimikatz output.</returns>
         </member>
         <member name="M:SharpSploit.Credentials.Mimikatz.DCSync(System.String,System.String,System.String)">
             <summary>
-            Loads the Mimikatz PE and executes the "dcsync" module to retrieve the NTLM hash of a specified (or all) Domain user. (Requires Domain Admin)
+            Loads the Mimikatz PE with `PE.Load()` and executes the "dcsync" module to retrieve the NTLM hash of a specified (or all) Domain user. (Requires Domain Admin)
             </summary>
             <param name="user">Username to retrieve NTLM hash for. "All" for all domain users.</param>
             <param name="FQDN">Optionally specify an alternative fully qualified domain name. Default is current domain.</param>
@@ -83,7 +78,7 @@
         </member>
         <member name="M:SharpSploit.Credentials.Mimikatz.PassTheHash(System.String,System.String,System.String,System.String)">
             <summary>
-            Loads the Mimikatz PE and executes the "pth" module to start a new process
+            Loads the Mimikatz PE with `PE.Load()` and executes the "pth" module to start a new process
             as a user using an NTLM password hash for authentication.
             </summary>
             <param name="user">Username to authenticate as.</param>
@@ -202,26 +197,6 @@
             <param name="hToken">Token to enable a security privilege for.</param>
             <param name="Privilege">Privilege to enable.</param>
             <returns>True if enabling Token succeeds, false otherwise.</returns>
-        </member>
-        <member name="T:SharpSploit.Enumeration.Clipboard">
-            <summary>
-            Clipboard allows for the monitoring of Clipboard text content.
-            </summary>
-        </member>
-        <member name="M:SharpSploit.Enumeration.Clipboard.StartClipboardMonitor(System.Int32)">
-            <summary>
-            Starts a clipboard monitor
-            </summary>
-            <author>Nick Muir (@_shellfarmer)</author>
-            <returns>String containing the captured clipboard contents, along with identification of what window they were copied from.</returns>
-            <param name="Seconds">The amount of time in seconds the clipboard monitor should run for before returning data.</param>
-        </member>
-        <member name="M:SharpSploit.Enumeration.Clipboard.GetActiveWindowTitle">
-            <summary>
-            Gets the active window title of the window keystrokes are being entered in.
-            </summary>
-            <author>Scottie Austin (@checkymander)</author>
-            <returns>Title of the active window.</returns>
         </member>
         <member name="T:SharpSploit.Enumeration.Domain">
             <summary>
@@ -741,8 +716,7 @@
             </summary>
             <param name="processId">Process ID of the process to generate a minidump for.</param>
             <param name="outputPath">Path to write output file in. Defaults to the current directory.</param>
-            <param name="outputFileName">Filename to output the minidump to.</param>
-            <returns>True if minidump succeeds, false otherwise.</returns>
+            <param name="outputFileName">Filename to ouput the minidump to.</param>
             <remarks>
             Authored by Justin Bui (@youslydawg).
             </remarks>
@@ -755,7 +729,6 @@
             <param name="processName">Name of the process to generate a minidump for.</param>
             <param name="outputPath">Path to write output file in. Defaults to the current directory.</param>
             <param name="outputFileName">Filename to ouput the minidump to.</param>
-            <returns>True if minidump succeeds, false otherwise.</returns>
             <remarks>
             Authored by Justin Bui (@youslydawg).
             </remarks>
@@ -768,68 +741,8 @@
             <param name="process">Process to generate a minidump for.</param>
             <param name="outputPath">Path to write output file in. Defaults to the current directory.</param>
             <param name="outputFileName">Filename to ouput the minidump to.</param>
-            <returns>True if minidump succeeds, false otherwise.</returns>
             <remarks>
             Authored by Justin Bui (@youslydawg).
-            </remarks>
-        </member>
-        <member name="M:SharpSploit.Enumeration.Host.MiniDumpWriteDumpCallback(System.IntPtr,SharpSploit.Execution.Win32.Dbghelp.MINIDUMP_CALLBACK_INPUT@,SharpSploit.Execution.Win32.Dbghelp.MINIDUMP_CALLBACK_OUTPUT@)">
-            <summary>
-            Auxiliary function for MiniDrumpWriteDump callbacks.
-            </summary>
-            <param name="CallbackParam"></param>
-            <param name="CallbackInput"></param>
-            <param name="CallbackOutput"></param>
-            <returns>True if minidump succeeds, false otherwise.</returns>
-            <remarks>
-            Authored by Simone Salucci (@saim1z) and Daniel López (@attl4s).
-            Code adapted from https://github.com/b4rtik/SharpMiniDump
-            and https://github.com/mjsabby/CopyOnWriteDump
-            </remarks>
-        </member>
-        <member name="M:SharpSploit.Enumeration.Host.CreateProcessSnapshotDump(System.Int32,System.String,System.String)">
-            <summary>
-            Creates a snapshot (PssCaptureSnapshot) of a process and dumps it (MiniDumpWriteDump).
-            Minimum supported Windows: Windows 8.1+ and Windows Server 2012+
-            </summary>
-            <param name="processId">Process ID of the process to generate a minidump for.</param>
-            <param name="outputPath">Path to write output file in. Defaults to the current directory.</param>
-            <param name="outputFileName">Filename to ouput the minidump to.</param>
-            <returns>True if snapshut dump succeeds, false otherwise.</returns>
-            <remarks>
-            Authored by Simone Salucci (@saim1z) and Daniel López (@attl4s).
-            Code adapted from https://github.com/b4rtik/SharpMiniDump
-            and https://github.com/mjsabby/CopyOnWriteDump
-            </remarks>
-        </member>
-        <member name="M:SharpSploit.Enumeration.Host.CreateProcessSnapshotDump(System.String,System.String,System.String)">
-            <summary>
-            Creates a snapshot (PssCaptureSnapshot) of a process and dumps it (MiniDumpWriteDump).
-            Minimum supported Windows: Windows 8.1+ and Windows Server 2012+
-            </summary>
-            <param name="processName">Name of the process to generate a minidump for.</param>
-            <param name="outputPath">Path to write output file in. Defaults to the current directory.</param>
-            <param name="outputFileName">Filename to ouput the minidump to.</param>
-            <returns>True if snapshut dump succeeds, false otherwise.</returns>
-            <remarks>
-            Authored by Simone Salucci (@saim1z) and Daniel López (@attl4s).
-            Code adapted from https://github.com/b4rtik/SharpMiniDump
-            and https://github.com/mjsabby/CopyOnWriteDump
-            </remarks>
-        </member>
-        <member name="M:SharpSploit.Enumeration.Host.CreateProcessSnapshotDump(System.Diagnostics.Process,System.String,System.String)">
-            <summary>
-            Creates a snapshot (PssCaptureSnapshot) of a process and dumps it (MiniDumpWriteDump).
-            Minimum supported Windows versions: Windows 8.1+ and Windows Server 2012+
-            </summary>
-            <param name="process">Process to generate a minidump for.</param>
-            <param name="outputPath">Path to write output file in. Defaults to the current directory.</param>
-            <param name="outputFileName">Filename to ouput the minidump to.</param>
-            <returns>True if snapshut dump succeeds, false otherwise.</returns>
-            <remarks>
-            Authored by Simone Salucci (@saim1z) and Daniel López (@attl4s).
-            Code adapted from https://github.com/b4rtik/SharpMiniDump
-            and https://github.com/mjsabby/CopyOnWriteDump
             </remarks>
         </member>
         <member name="M:SharpSploit.Enumeration.Host.GetHostname">
@@ -877,12 +790,6 @@
             </summary>
             <param name="DirectoryName">Relative or absolute path to new working directory.</param>
         </member>
-        <member name="M:SharpSploit.Enumeration.Host.GetDrives">
-            <summary>
-            Gets information about current drives.
-            </summary>
-            <returns>SharpSploitResultList of DriveInfoResults</returns>
-        </member>
         <member name="T:SharpSploit.Enumeration.Host.ProcessResult">
             <summary>
             ProcessResult represents a running process, used with the GetProcessList() function.
@@ -896,11 +803,6 @@
         <member name="T:SharpSploit.Enumeration.Host.DaclResult">
             <summary>
             DaclResult represents a DACL of a file or directory on disk, used with the GetDacl() function.
-            </summary>
-        </member>
-        <member name="T:SharpSploit.Enumeration.Host.DriveInfoResult">
-            <summary>
-            DriveInfoResult represents information about a drive.
             </summary>
         </member>
         <member name="T:SharpSploit.Enumeration.Keylogger">
@@ -1206,12 +1108,6 @@
             Credit to Adam Chester (@_xpn_).
             </remarks>
         </member>
-        <member name="T:SharpSploit.Evasion.ETW">
-            <summary>
-            ETW is a class for manipulating Event Tracing for Windows (ETW).
-            </summary>
-        </member>
-        <!-- Badly formed XML comment ignored for member "M:SharpSploit.Evasion.ETW.PatchETWEventWrite" -->
         <member name="T:SharpSploit.Execution.Assembly">
             <summary>
             Assembly is a library for loading .NET assemblies and executing methods contained within them.
@@ -1423,7 +1319,7 @@
             <author>Ruben Boonen (@FuzzySec)</author>
             <returns>Dictionary, a combination of Key:APISetDLL and Val:HostDLL.</returns>
         </member>
-        <member name="M:SharpSploit.Execution.DynamicInvoke.Generic.CallMappedPEModule(SharpSploit.Execution.ManualMap.PE.PE_META_DATA,System.IntPtr)">
+        <member name="M:SharpSploit.Execution.DynamicInvoke.Generic.CallMappedPEModule(SharpSploit.Execution.PE.PE_META_DATA,System.IntPtr)">
             <summary>
             Call a manually mapped PE by its EntryPoint.
             </summary>
@@ -1432,7 +1328,7 @@
             <param name="ModuleMemoryBase">Base address of the module in memory.</param>
             <returns>void</returns>
         </member>
-        <member name="M:SharpSploit.Execution.DynamicInvoke.Generic.CallMappedDLLModule(SharpSploit.Execution.ManualMap.PE.PE_META_DATA,System.IntPtr)">
+        <member name="M:SharpSploit.Execution.DynamicInvoke.Generic.CallMappedDLLModule(SharpSploit.Execution.PE.PE_META_DATA,System.IntPtr)">
             <summary>
             Call a manually mapped DLL by DllMain -> DLL_PROCESS_ATTACH.
             </summary>
@@ -1441,7 +1337,7 @@
             <param name="ModuleMemoryBase">Base address of the module in memory.</param>
             <returns>void</returns>
         </member>
-        <member name="M:SharpSploit.Execution.DynamicInvoke.Generic.CallMappedDLLModuleExport(SharpSploit.Execution.ManualMap.PE.PE_META_DATA,System.IntPtr,System.String,System.Type,System.Object[],System.Boolean)">
+        <member name="M:SharpSploit.Execution.DynamicInvoke.Generic.CallMappedDLLModuleExport(SharpSploit.Execution.PE.PE_META_DATA,System.IntPtr,System.String,System.Type,System.Object[])">
             <summary>
             Call a manually mapped DLL by Export.
             </summary>
@@ -1451,7 +1347,6 @@
             <param name="ExportName">The name of the export to search for (e.g. "NtAlertResumeThread").</param>
             <param name="FunctionDelegateType">Prototype for the function, represented as a Delegate object.</param>
             <param name="Parameters">Arbitrary set of parameters to pass to the function. Can be modified if function uses call by reference.</param>
-            <param name="CallEntry">Specify whether to invoke the module's entry point.</param>
             <returns>void</returns>
         </member>
         <member name="M:SharpSploit.Execution.DynamicInvoke.Generic.GetSyscallStub(System.String)">
@@ -1510,18 +1405,6 @@
             </summary>
             <returns>Returns true if process is WOW64, and false if not (64-bit, or 32-bit on a 32-bit machine).</returns>
         </member>
-        <member name="M:SharpSploit.Execution.DynamicInvoke.Win32.VirtualAllocEx(System.IntPtr,System.IntPtr,System.UInt32,SharpSploit.Execution.Win32.Kernel32.AllocationType,SharpSploit.Execution.Win32.Kernel32.MemoryProtection)">
-            <summary>
-            Uses DynamicInvocation to call the VirtualAllocEx Win32 API. https://docs.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualallocex
-            </summary>
-            <returns>Returns the base address of allocated region if successful, otherwise return NULL.</returns>
-        </member>
-        <member name="M:SharpSploit.Execution.DynamicInvoke.Win32.WriteProcessMemory(System.IntPtr,System.IntPtr,System.Byte[],System.Int32,System.IntPtr@)">
-            <summary>
-            Uses DynamicInvocation to call the WriteProcessMemory Win32 API. https://docs.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-writeprocessmemory
-            </summary>
-            <returns>Returns true if process memory was written successfully, otherwise return false.</returns>
-        </member>
         <member name="T:SharpSploit.Execution.Injection.AllocationTechnique">
             <summary>
             Base class for allocation techniques.
@@ -1560,15 +1443,89 @@
             <param name="Process">The target process.</param>
             <returns>Base address of allocated memory within the target process's virtual memory space.</returns>
         </member>
-        <member name="T:SharpSploit.Execution.Injection.AllocationFailed">
+        <member name="T:SharpSploit.Execution.Injection.SectionMapAlloc">
             <summary>
-            Exception thrown when the payload memory fails to allocate
+            Allocates a payload to a target process using locally-written, remotely-copied shared memory sections.
             </summary>
         </member>
-        <member name="T:SharpSploit.Execution.Injection.MemoryWriteFailed">
+        <member name="M:SharpSploit.Execution.Injection.SectionMapAlloc.#ctor">
             <summary>
-            Exception thrown when the memory fails to write
+            Default constructor.
             </summary>
+        </member>
+        <member name="M:SharpSploit.Execution.Injection.SectionMapAlloc.#ctor(System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Constructor allowing options as arguments.
+            </summary>
+        </member>
+        <member name="M:SharpSploit.Execution.Injection.SectionMapAlloc.IsSupportedPayloadType(SharpSploit.Execution.Injection.PayloadType)">
+            <summary>
+            States whether the payload is supported.
+            </summary>
+            <author>The Wover (@TheRealWover)</author>
+            <param name="Payload">Payload that will be allocated.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpSploit.Execution.Injection.SectionMapAlloc.DefineSupportedPayloadTypes">
+            <summary>
+            Internal method for setting the supported payload types. Used in constructors.
+            Update when new types of payloads are added.
+            </summary>
+            <author>The Wover (@TheRealWover)</author>
+        </member>
+        <member name="M:SharpSploit.Execution.Injection.SectionMapAlloc.Allocate(SharpSploit.Execution.Injection.PayloadType,System.Diagnostics.Process)">
+            <summary>
+            Allocate the payload to the target process. Handles unknown payload types.
+            </summary>
+            <author>The Wover (@TheRealWover)</author>
+            <param name="Payload">The payload to allocate to the target process.</param>
+            <param name="Process">The target process.</param>
+            <returns>Base address of allocated memory within the target process's virtual memory space.</returns>
+        </member>
+        <member name="M:SharpSploit.Execution.Injection.SectionMapAlloc.Allocate(SharpSploit.Execution.Injection.PICPayload,System.Diagnostics.Process,System.IntPtr)">
+            <summary>
+            Allocate the payload in the target process.
+            </summary>
+            <author>The Wover (@TheRealWover)</author>
+            <param name="Payload">The PIC payload to allocate to the target process.</param>
+            <param name="Process">The target process.</param>
+            <param name="PreferredAddress">The preferred address at which to allocate the payload in the target process.</param>
+            <returns>Base address of allocated memory within the target process's virtual memory space.</returns>
+        </member>
+        <member name="M:SharpSploit.Execution.Injection.SectionMapAlloc.CreateSection(System.UInt64,System.UInt32)">
+            <summary>
+            Creates a new Section.
+            </summary>
+            <author>The Wover (@TheRealWover)</author>
+            <param name="size">Max size of the Section.</param>
+            <param name="allocationAttributes">Section attributes (eg. Win32.WinNT.SEC_COMMIT).</param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpSploit.Execution.Injection.SectionMapAlloc.MapSection(System.IntPtr,System.IntPtr,System.UInt32,System.IntPtr,System.UInt64)">
+            <summary>
+            Maps a view of a section to the target process.
+            </summary>
+            <author>The Wover (@TheRealWover)</author>
+            <param name="procHandle">Handle the process that the section will be mapped to.</param>
+            <param name="sectionHandle">Handle to the section.</param>
+            <param name="protection">What permissions to use on the view.</param>
+            <param name="addr">Optional parameter to specify the address of where to map the view.</param>
+            <param name="sizeData">Size of the view to map. Must be smaller than the max Section size.</param>
+            <returns>A struct containing address and size of the mapped view.</returns>
+        </member>
+        <member name="T:SharpSploit.Execution.Injection.SectionMapAlloc.SectionDetails">
+            <summary>
+            Holds the data returned from NtMapViewOfSection.
+            </summary>
+        </member>
+        <member name="M:SharpSploit.Execution.Injection.SectionMapAlloc.UnmapSection(System.IntPtr,System.IntPtr)">
+            <summary>
+            Unmaps a view of a section from a process.
+            </summary>
+            <author>The Wover (@TheRealWover)</author>
+            <param name="hProc">Process to which the view has been mapped.</param>
+            <param name="baseAddr">Address of the view (relative to the target process)</param>
+            <returns></returns>
         </member>
         <member name="T:SharpSploit.Execution.Injection.ExecutionTechnique">
             <summary>
@@ -1703,145 +1660,6 @@
             </summary>
             <author>The Wover (@TheRealWover)</author>
         </member>
-        <member name="T:SharpSploit.Execution.Injection.SectionMapAllocationTechnique">
-            <summary>
-            Allocates a payload to a target process using locally-written, remotely-copied shared memory sections.
-            </summary>
-        </member>
-        <member name="M:SharpSploit.Execution.Injection.SectionMapAllocationTechnique.#ctor">
-            <summary>
-            Default constructor.
-            </summary>
-        </member>
-        <member name="M:SharpSploit.Execution.Injection.SectionMapAllocationTechnique.#ctor(System.UInt32,System.UInt32,System.UInt32)">
-            <summary>
-            Constructor allowing options as arguments.
-            </summary>
-        </member>
-        <member name="M:SharpSploit.Execution.Injection.SectionMapAllocationTechnique.IsSupportedPayloadType(SharpSploit.Execution.Injection.PayloadType)">
-            <summary>
-            States whether the payload is supported.
-            </summary>
-            <author>The Wover (@TheRealWover)</author>
-            <param name="Payload">Payload that will be allocated.</param>
-            <returns></returns>
-        </member>
-        <member name="M:SharpSploit.Execution.Injection.SectionMapAllocationTechnique.DefineSupportedPayloadTypes">
-            <summary>
-            Internal method for setting the supported payload types. Used in constructors.
-            Update when new types of payloads are added.
-            </summary>
-            <author>The Wover (@TheRealWover)</author>
-        </member>
-        <member name="M:SharpSploit.Execution.Injection.SectionMapAllocationTechnique.Allocate(SharpSploit.Execution.Injection.PayloadType,System.Diagnostics.Process)">
-            <summary>
-            Allocate the payload to the target process. Handles unknown payload types.
-            </summary>
-            <author>The Wover (@TheRealWover)</author>
-            <param name="Payload">The payload to allocate to the target process.</param>
-            <param name="Process">The target process.</param>
-            <returns>Base address of allocated memory within the target process's virtual memory space.</returns>
-        </member>
-        <member name="M:SharpSploit.Execution.Injection.SectionMapAllocationTechnique.Allocate(SharpSploit.Execution.Injection.PICPayload,System.Diagnostics.Process,System.IntPtr)">
-            <summary>
-            Allocate the payload in the target process.
-            </summary>
-            <author>The Wover (@TheRealWover)</author>
-            <param name="Payload">The PIC payload to allocate to the target process.</param>
-            <param name="Process">The target process.</param>
-            <param name="PreferredAddress">The preferred address at which to allocate the payload in the target process.</param>
-            <returns>Base address of allocated memory within the target process's virtual memory space.</returns>
-        </member>
-        <member name="M:SharpSploit.Execution.Injection.SectionMapAllocationTechnique.CreateSection(System.UInt64,System.UInt32)">
-            <summary>
-            Creates a new Section.
-            </summary>
-            <author>The Wover (@TheRealWover)</author>
-            <param name="size">Max size of the Section.</param>
-            <param name="allocationAttributes">Section attributes (eg. Win32.WinNT.SEC_COMMIT).</param>
-            <returns></returns>
-        </member>
-        <member name="M:SharpSploit.Execution.Injection.SectionMapAllocationTechnique.MapSection(System.IntPtr,System.IntPtr,System.UInt32,System.IntPtr,System.UInt64)">
-            <summary>
-            Maps a view of a section to the target process.
-            </summary>
-            <author>The Wover (@TheRealWover)</author>
-            <param name="procHandle">Handle the process that the section will be mapped to.</param>
-            <param name="sectionHandle">Handle to the section.</param>
-            <param name="protection">What permissions to use on the view.</param>
-            <param name="addr">Optional parameter to specify the address of where to map the view.</param>
-            <param name="sizeData">Size of the view to map. Must be smaller than the max Section size.</param>
-            <returns>A struct containing address and size of the mapped view.</returns>
-        </member>
-        <member name="T:SharpSploit.Execution.Injection.SectionMapAllocationTechnique.SectionDetails">
-            <summary>
-            Holds the data returned from NtMapViewOfSection.
-            </summary>
-        </member>
-        <member name="M:SharpSploit.Execution.Injection.SectionMapAllocationTechnique.UnmapSection(System.IntPtr,System.IntPtr)">
-            <summary>
-            Unmaps a view of a section from a process.
-            </summary>
-            <author>The Wover (@TheRealWover)</author>
-            <param name="hProc">Process to which the view has been mapped.</param>
-            <param name="baseAddr">Address of the view (relative to the target process)</param>
-            <returns></returns>
-        </member>
-        <member name="T:SharpSploit.Execution.Injection.VirtualAllocAllocationTechnique">
-            <summary>
-            Allocates a payload to a target process using VirtualAllocateEx and WriteProcessMemory
-            </summary>
-            <author>aus</author>
-        </member>
-        <member name="M:SharpSploit.Execution.Injection.VirtualAllocAllocationTechnique.#ctor">
-            <summary>
-            Default constructor.
-            </summary>
-        </member>
-        <member name="M:SharpSploit.Execution.Injection.VirtualAllocAllocationTechnique.#ctor(SharpSploit.Execution.Win32.Kernel32.AllocationType,SharpSploit.Execution.Win32.Kernel32.MemoryProtection,SharpSploit.Execution.Injection.VirtualAllocAllocationTechnique.AllocationAPI,SharpSploit.Execution.Injection.VirtualAllocAllocationTechnique.WriteAPI)">
-            <summary>
-            Constructor allowing options as arguments.
-            </summary>
-        </member>
-        <member name="M:SharpSploit.Execution.Injection.VirtualAllocAllocationTechnique.IsSupportedPayloadType(SharpSploit.Execution.Injection.PayloadType)">
-            <summary>
-            States whether the payload is supported.
-            </summary>
-            <author>The Wover (@TheRealWover)</author>
-            <param name="Payload">Payload that will be allocated.</param>
-            <returns></returns>
-        </member>
-        <member name="M:SharpSploit.Execution.Injection.VirtualAllocAllocationTechnique.DefineSupportedPayloadTypes">
-            <summary>
-            Internal method for setting the supported payload types. Used in constructors.
-            Update when new types of payloads are added.
-            </summary>
-            <author>The Wover (@TheRealWover)</author>
-        </member>
-        <member name="M:SharpSploit.Execution.Injection.VirtualAllocAllocationTechnique.Allocate(SharpSploit.Execution.Injection.PayloadType,System.Diagnostics.Process)">
-            <summary>
-            Allocate the payload to the target process. Handles unknown payload types.
-            </summary>
-            <author>The Wover (@TheRealWover)</author>
-            <param name="Payload">The payload to allocate to the target process.</param>
-            <param name="Process">The target process.</param>
-            <returns>Base address of allocated memory within the target process's virtual memory space.</returns>
-        </member>
-        <member name="M:SharpSploit.Execution.Injection.VirtualAllocAllocationTechnique.Allocate(SharpSploit.Execution.Injection.PICPayload,System.Diagnostics.Process,System.IntPtr)">
-            <summary>
-            Allocate the payload in the target process via VirtualAllocEx + WriteProcessMemory
-            </summary>
-            <author>The Wover (@TheRealWover), aus (@aus)</author>
-            <param name="Payload">The PIC payload to allocate to the target process.</param>
-            <param name="Process">The target process.</param>
-            <param name="PreferredAddress">The preferred address at which to allocate the payload in the target process.</param>
-            <returns>Base address of allocated memory within the target process's virtual memory space.</returns>
-        </member>
-        <member name="T:SharpSploit.Execution.ManualMap.Map">
-            <summary>
-            Class for manually mapping PEs.
-            </summary>
-        </member>
         <member name="M:SharpSploit.Execution.ManualMap.Map.MapModuleFromDisk(System.String)">
             <summary>
             Maps a DLL from disk into a Section using NtCreateSection.
@@ -1866,7 +1684,7 @@
             <param name="FileByteArray">Byte array to be allocated.</param>
             <returns>IntPtr base address of the allocated file.</returns>
         </member>
-        <member name="M:SharpSploit.Execution.ManualMap.Map.RelocateModule(SharpSploit.Execution.ManualMap.PE.PE_META_DATA,System.IntPtr)">
+        <member name="M:SharpSploit.Execution.ManualMap.Map.RelocateModule(SharpSploit.Execution.PE.PE_META_DATA,System.IntPtr)">
             <summary>
             Relocates a module in memory.
             </summary>
@@ -1875,7 +1693,7 @@
             <param name="ModuleMemoryBase">Base address of the module in memory.</param>
             <returns>void</returns>
         </member>
-        <member name="M:SharpSploit.Execution.ManualMap.Map.RewriteModuleIAT(SharpSploit.Execution.ManualMap.PE.PE_META_DATA,System.IntPtr)">
+        <member name="M:SharpSploit.Execution.ManualMap.Map.RewriteModuleIAT(SharpSploit.Execution.PE.PE_META_DATA,System.IntPtr)">
             <summary>
             Rewrite IAT for manually mapped module.
             </summary>
@@ -1884,7 +1702,7 @@
             <param name="ModuleMemoryBase">Base address of the module in memory.</param>
             <returns>void</returns>
         </member>
-        <member name="M:SharpSploit.Execution.ManualMap.Map.SetModuleSectionPermissions(SharpSploit.Execution.ManualMap.PE.PE_META_DATA,System.IntPtr)">
+        <member name="M:SharpSploit.Execution.ManualMap.Map.SetModuleSectionPermissions(SharpSploit.Execution.PE.PE_META_DATA,System.IntPtr)">
             <summary>
             Set correct module section permissions.
             </summary>
@@ -1935,7 +1753,7 @@
             <param name="pImage">Pointer to the PEINFO image.</param>
             <returns>PE_MANUAL_MAP object</returns>
         </member>
-        <member name="M:SharpSploit.Execution.ManualMap.Map.MapModuleToMemory(System.IntPtr,System.IntPtr,SharpSploit.Execution.ManualMap.PE.PE_META_DATA)">
+        <member name="M:SharpSploit.Execution.ManualMap.Map.MapModuleToMemory(System.IntPtr,System.IntPtr,SharpSploit.Execution.PE.PE_META_DATA)">
             <summary>
             Manually map module into current process.
             </summary>
@@ -1945,50 +1763,35 @@
             <param name="PEINFO">PE_META_DATA of the module being mapped.</param>
             <returns>PE_MANUAL_MAP object</returns>
         </member>
-        <member name="M:SharpSploit.Execution.ManualMap.Map.FreeModule(SharpSploit.Execution.ManualMap.PE.PE_MANUAL_MAP)">
-            <summary>
-            Free a module that was mapped into the current process.
-            </summary>
-            <author>The Wover (@TheRealWover)</author>
-            <param name="PEMapped">The metadata of the manually mapped module.</param>
-        </member>
-        <member name="M:SharpSploit.Execution.ManualMap.Overload.FindDecoyModule(System.Int64,System.Boolean)">
+        <member name="M:SharpSploit.Execution.ManualMap.Overload.FindDecoyModule(System.Int64)">
             <summary>
             Locate a signed module with a minimum size which can be used for overloading.
             </summary>
             <author>The Wover (@TheRealWover)</author>
             <param name="MinSize">Minimum module byte size.</param>
-            <param name="LegitSigned">Whether to require that the module be legitimately signed.</param>
             <returns>
             String, the full path for the candidate module if one is found, or an empty string if one is not found.
             </returns>
         </member>
-        <member name="M:SharpSploit.Execution.ManualMap.Overload.OverloadModule(System.String,System.Boolean,System.String)">
+        <member name="M:SharpSploit.Execution.ManualMap.Overload.OverloadModule(System.String,System.String)">
             <summary>
             Load a signed decoy module into memory, creating legitimate file-backed memory sections within the process. Afterwards overload that
             module by manually mapping a payload in it's place causing the payload to execute from what appears to be file-backed memory.
             </summary>
             <author>The Wover (@TheRealWover), Ruben Boonen (@FuzzySec)</author>
             <param name="PayloadPath">Full path to the payload module on disk.</param>
-            <param name="LegitSigned">Optional, if the decoy module must have a legitimate signature.</param>
             <param name="DecoyModulePath">Optional, full path the decoy module to overload in memory.</param>
             <returns>PE.PE_MANUAL_MAP</returns>
         </member>
-        <member name="M:SharpSploit.Execution.ManualMap.Overload.OverloadModule(System.Byte[],System.Boolean,System.String)">
+        <member name="M:SharpSploit.Execution.ManualMap.Overload.OverloadModule(System.Byte[],System.String)">
             <summary>
             Load a signed decoy module into memory creating legitimate file-backed memory sections within the process. Afterwards overload that
             module by manually mapping a payload in it's place causing the payload to execute from what appears to be file-backed memory.
             </summary>
             <author>The Wover (@TheRealWover), Ruben Boonen (@FuzzySec)</author>
             <param name="Payload">Full byte array for the payload module.</param>
-            <param name="LegitSigned">Optional, if the decoy module must have a legitimate signature.</param>
             <param name="DecoyModulePath">Optional, full path the decoy module to overload in memory.</param>
             <returns>PE.PE_MANUAL_MAP</returns>
-        </member>
-        <member name="T:SharpSploit.Execution.ManualMap.PE">
-            <summary>
-            Holds data structures for using PEs.
-            </summary>
         </member>
         <member name="T:SharpSploit.Execution.Native">
             <summary>
@@ -2008,6 +1811,44 @@
             NTSTATUS is an undocument enum. https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/596a1078-e883-4972-9bbc-49e60bebca55
             https://www.pinvoke.net/default.aspx/Enums/NtStatus.html
             </summary>
+        </member>
+        <member name="T:SharpSploit.Execution.PE">
+            <summary>
+            PE is a library for loading PEs in memory. It currently only work for the Mimikatz PE, not for arbitrary PEs.
+            </summary>
+            <remarks>
+            PE has been adapted from Casey Smith's (@subtee) PELoader which is no longer available online. However, Chris Ross'
+            (@xorrior) fork is available here: https://github.com/xorrior/Random-CSharpTools/tree/master/DllLoader/DllLoader
+            </remarks>
+        </member>
+        <member name="P:SharpSploit.Execution.PE.OptionalHeader32">
+            Gets the optional header
+        </member>
+        <member name="P:SharpSploit.Execution.PE.OptionalHeader64">
+            Gets the optional header
+        </member>
+        <member name="F:SharpSploit.Execution.PE.dosHeader">
+            The DOS header
+        </member>
+        <member name="M:SharpSploit.Execution.PE.#ctor(System.Byte[])">
+            <summary>
+            PE Constructor
+            </summary>
+            <param name="PEBytes">PE raw bytes.</param>
+        </member>
+        <member name="M:SharpSploit.Execution.PE.Load(System.Byte[])">
+            <summary>
+            Loads a PE with a specified byte array. (Requires Admin) **(*Currently broken. Works for Mimikatz, but not arbitrary PEs*)
+            </summary>
+            <param name="PEBytes"></param>
+            <returns>PE</returns>
+        </member>
+        <member name="M:SharpSploit.Execution.PE.GetFunctionExport(System.String)">
+            <summary>
+            Gets a pointer to an exported function in the PE. Useful to call specific exported functions after loading the PE.
+            </summary>
+            <param name="funcName">Name of the function to get a pointer for.</param>
+            <returns>Pointer to the function.</returns>
         </member>
         <member name="M:SharpSploit.Execution.PlatformInvoke.Native.NtCreateThreadEx(System.IntPtr@,SharpSploit.Execution.Win32.WinNT.ACCESS_MASK,System.IntPtr,System.IntPtr,System.IntPtr,System.IntPtr,System.Boolean,System.Int32,System.Int32,System.Int32,System.IntPtr)">
             <summary>
@@ -2142,48 +1983,6 @@
             <param name="Path">The path of the directory from which to execute the shell command.</param>
             <param name="hToken">A handle to the impersonated token.</param>
             <returns>Output of the created process.</returns>
-        </member>
-        <member name="M:SharpSploit.Execution.Shell.KillProcess(System.Int32)">
-            <summary>
-            Kills a specified process.
-            </summary>
-            <param name="Pid">The PID of the process to kill.</param>
-            <returns>bool</returns>
-        </member>
-        <member name="M:SharpSploit.Execution.Shell.KillProcess(System.String)">
-            <summary>
-            Kills all processes with a given name.
-            </summary>
-            <param name="Name">The name of the process(es) to kill.</param>
-            <returns>bool</returns>
-        </member>
-        <member name="M:SharpSploit.Execution.Shell.SuspendProcess(System.Int32)">
-            <summary>
-            Suspends a process specificed by Id.
-            </summary>
-            <param name="Pid">The ID of the process to suspend.</param>
-            <returns>bool</returns>
-        </member>
-        <member name="M:SharpSploit.Execution.Shell.SuspendProcess(System.String)">
-            <summary>
-            Suspends all processes with a given Name.
-            </summary>
-            <param name="Name">The name of the process(es) to suspend.</param>
-            <returns>bool</returns>
-        </member>
-        <member name="M:SharpSploit.Execution.Shell.ResumeProcess(System.Int32)">
-            <summary>
-            Resumes a process specified by Id.
-            </summary>
-            <param name="Pid">The Id of the process to resume.</param>
-            <returns>bool</returns>
-        </member>
-        <member name="M:SharpSploit.Execution.Shell.ResumeProcess(System.String)">
-            <summary>
-            Resumes all processes with a given Name.
-            </summary>
-            <param name="Name">The name of the process(es) to resume.</param>
-            <returns>bool</returns>
         </member>
         <member name="T:SharpSploit.Execution.ShellCode">
             <summary>
